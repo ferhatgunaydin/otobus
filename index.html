@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact List with Search</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        #searchBox {
+            width: 300px;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Contact List with Search</h2>
+    <input type="text" id="searchBox" placeholder="Search by name, address, or code..." onkeyup="searchTable()">
+
+    <table id="contactTable">
+        <thead>
+            <tr>
+                <th>KOD</th>
+                <th>İŞLETMECİ</th>
+                <th>DAR BÖLGE</th>
+                <th>İŞLETMECİ TELEFON</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Data will be populated here from CSV -->
+        </tbody>
+    </table>
+
+    <script>
+        // Function to read CSV and populate the table
+        async function loadCSV() {
+            const response = await fetch('data.csv');
+            const data = await response.text();
+
+            const rows = data.split('\n').slice(1); // Skip the header row
+            const tbody = document.querySelector('#contactTable tbody');
+
+            rows.forEach(row => {
+                const cols = row.split(',');
+                if (cols.length > 1) { // Ensure there is data in the row
+                    const tr = document.createElement('tr');
+
+                    cols.forEach((col, index) => {
+                        const td = document.createElement('td');
+                        if (index === 1) {
+                            // Make phone numbers clickable
+                            td.innerHTML = `<a href="İŞLETMECİ TELEFON:${col.trim()}">${col.trim()}</a>`;
+                        } else {
+                            td.textContent = col.trim();
+                        }
+                        tr.appendChild(td);
+                    });
+                    tbody.appendChild(tr);
+                }
+            });
+        }
+
+        // Search functionality to filter table rows based on input
+        function searchTable() {
+            const input = document.getElementById('searchBox').value.toLowerCase();
+            const rows = document.querySelectorAll('#contactTable tbody tr');
+            
+            rows.forEach(row => {
+                const cells = row.getElementsByTagName('td');
+                let found = false;
+
+                // Check if any cell contains the search query
+                for (let i = 0; i < cells.length; i++) {
+                    if (cells[i].innerText.toLowerCase().includes(input)) {
+                        found = true;
+                        break;
+                    }
+                }
+
+                // Toggle row visibility based on the search query
+                row.style.display = found ? '' : 'none';
+            });
+        }
+
+        // Load CSV data when the page is ready
+        window.onload = loadCSV;
+    </script>
+</body>
+</html>
